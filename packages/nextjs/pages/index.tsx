@@ -94,7 +94,7 @@ function PageBody() {
     <>
       <p className="text-center text-lg">Here we are!</p>
       <WalletInfo></WalletInfo>
-      <RandomWord></RandomWord>
+      {/* <RandomWord></RandomWord> */}
     </>
   );
 }
@@ -107,10 +107,11 @@ function WalletInfo() {
       <div>
         <p>Your account address is {address}</p>
         <p>Connected to the network &quot;{chain?.name}&quot;</p>
-        {/* <WalletAction></WalletAction> */}
+        {/* <TestSignature></TestSignature> */}
         <WalletBalance address={address as `0x${string}`}></WalletBalance>
         <TokenInfo address={address as `0x${string}`}></TokenInfo>
         <ApiData address={address as `0x${string}`}></ApiData>
+        <MintTokens address={address as `0x${string}`}></MintTokens>
       </div>
     );
   if (isConnecting)
@@ -132,11 +133,11 @@ function WalletInfo() {
   );
 }
 
-function WalletAction() {
+function TestSignature() {
   const [signatureMessage, setSignatureMessage] = react.useState("");
   const { data, isError, isLoading, isSuccess, signMessage } = wagmi.useSignMessage();
   return (
-    <div className="card w-96 bg-primary text-primary-content mt-4">
+    <div className="card bg-primary text-primary-content mt-4">
       <div className="card-body">
         <h2 className="card-title">Testing signatures</h2>
         <div className="form-control w-full max-w-xs my-4">
@@ -177,7 +178,7 @@ function WalletBalance(params: { address: `0x${string}` }) {
   if (isLoading) return <div>Fetching balance…</div>;
   if (isError) return <div>Error fetching balance</div>;
   return (
-    <div className="card w-96 bg-primary text-primary-content mt-4">
+    <div className="card bg-primary text-primary-content mt-4">
       <div className="card-body">
         <h2 className="card-title">Testing useBalance wagmi hook</h2>
         Balance: {data?.formatted} {data?.symbol}
@@ -188,7 +189,7 @@ function WalletBalance(params: { address: `0x${string}` }) {
 
 function TokenInfo(params: { address: `0x${string}` }) {
   return (
-    <div className="card w-96 bg-primary text-primary-content mt-4">
+    <div className="card bg-primary text-primary-content mt-4">
       <div className="card-body">
         <h2 className="card-title">Testing useContractRead wagmi hook</h2>
         <TokenName></TokenName>
@@ -229,7 +230,7 @@ function TokenName() {
 
 function TokenBalance(params: { address: `0x${string}` }) {
   const { data, isError, isLoading } = wagmi.useContractRead({
-    address: "0x37dBD10E7994AAcF6132cac7d33bcA899bd2C660",
+    address: "0x37dBD10E7994AAcF6132cac7d33bcA899bd2C660",  // Matic token
     abi: [
       {
         constant: true,
@@ -279,9 +280,9 @@ function RandomWord() {
   if (!data) return <p>No profile data</p>;
 
   return (
-    <div className="card w-96 bg-primary text-primary-content mt-4">
+    <div className="card bg-primary text-primary-content mt-4">
       <div className="card-body">
-        <h2 className="card-title">Testing react.useState and useEffect from React library</h2>
+        <h2 className="card-title">Testing useState and useEffect from React library</h2>
         <h1>
           Name: {data.name.title} {data.name.first} {data.name.last}
         </h1>
@@ -293,12 +294,12 @@ function RandomWord() {
 
 function ApiData(params: { address: `0x${string}` }) {
   return (
-    <div className="card w-96 bg-primary text-primary-content mt-4">
+    <div className="card bg-primary text-primary-content mt-4">
       <div className="card-body">
         <h2 className="card-title">Testing API Coupling</h2>
-        <p>TODO</p>
         <TokenAddressFromApi></TokenAddressFromApi>
         <RequestTokens address={params.address}></RequestTokens>
+        <p>OK</p>
       </div>
     </div>
   );
@@ -361,6 +362,100 @@ function RequestTokens(params: { address: string }) {
       <p>Result from API: {data.result ? 'worked' : 'failed'}</p>
     </div>
   );
+}
+
+function MintTokens(params: { address: string }) {
+  const [response, setResponse] = react.useState<{ result: boolean }>();
+  const [recipientAddress, setRecipientAddress] = react.useState('');
+  const [amount, setAmount] = react.useState('');
+  const [password, setPassoword] = react.useState('');
+  const [isLoading, setLoading] = react.useState(false);
+
+  // const body = { address: params.address };
+  const body = { recipientAddress, amount, password };
+
+  // if (isLoading) return <p>Requesting tokens from API...</p>;
+  // if (!data)
+    /*
+    {
+      "recipientAddress": "wallet address",
+      "amount": "MKTV amount",
+      "password": "password"
+    }
+    */
+    return (
+      <div className="card bg-primary text-primary-content mt-4">
+      <div className="card-body">
+        <h2 className="card-title">Mint MTKV tokens</h2>
+        <div className="form-control w-full max-w-xs my-4">
+          <label className="label">
+            <span className="label-text">Address:</span>
+          </label>
+          <input
+            type="text"
+            placeholder="0x"
+            className="input input-bordered w-full max-w-xs"
+            value={recipientAddress}
+            onChange={e => setRecipientAddress(e.target.value)}
+          />
+        </div>
+        <div className="form-control w-full max-w-xs my-4">
+          <label className="label">
+            <span className="label-text">Amount:</span>
+          </label>
+          <input
+            type="text"
+            placeholder="0.00"
+            className="input input-bordered w-full max-w-xs"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+          />
+        </div>
+        <div className="form-control w-full max-w-xs my-4">
+          <label className="label">
+            <span className="label-text">Password:</span>
+          </label>
+          <input
+            type="password"
+            placeholder="Type here"
+            className="input input-bordered w-full max-w-xs"
+            value={password}
+            onChange={e => setPassoword(e.target.value)}
+          />
+        </div>
+        <button
+          className="btn btn-active btn-neutral"
+          onClick={() => {
+            setLoading(true);
+            fetch("http://localhost:3001/mint-tokens", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                setResponse(data);
+                setLoading(false);
+              });
+          }}
+        >
+          Mint tokens
+        </button>
+        {isLoading && <div>Minting...</div>}
+        {response && <div>Minting {response.result ? 'worked' : 'failed'}</div>}
+        {/* if (response)
+          <div>
+            <p>Result from API: {response.result ? 'worked' : 'failed'}</p>
+          </div> */}
+        </div>
+      </div>
+    );
+
+  // return (
+  //   <div>
+  //     <p>Result from API: {data.result ? 'worked' : 'failed'}</p>
+  //   </div>
+  // );
 }
 
 export default Home;
